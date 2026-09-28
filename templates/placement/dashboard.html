@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}TPO Dashboard – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <!-- Hero Banner Header -->
+  <div class="dashboard-hero-banner mb-4" style="background-image: url('{{ url_for('static', filename='images/campus_placement.jpg') }}');">
+    <div class="dashboard-hero-overlay d-flex align-items-center justify-content-between">
+      <div>
+        <span class="badge bg-success px-3 py-1 mb-2 rounded-pill"><i class="bi bi-mortarboard-fill me-1"></i> Institutional Placement Officer Portal</span>
+        <h2 class="fw-bold mb-1">Campus Placement Cell (TPO)</h2>
+        <p class="mb-0 text-light opacity-90">Institutional placement analytics, drive management, and student batch tracking.</p>
+      </div>
+      <a href="{{ url_for('placement.create_drive') }}" class="btn btn-light btn-lg text-success fw-bold shadow">
+        <i class="bi bi-rocket-takeoff-fill me-1"></i> Schedule Placement Drive
+      </a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Total Students</span>
+            <h3 class="fw-bold mb-0 text-primary">{{ metrics.total_students }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Students Placed</span>
+            <h3 class="fw-bold mb-0 text-success">{{ metrics.placed_students }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+            <i class="bi bi-award-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Unplaced Students</span>
+            <h3 class="fw-bold mb-0 text-danger">{{ metrics.unplaced_students }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-danger bg-opacity-10 text-danger">
+            <i class="bi bi-person-x-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Active Drives</span>
+            <h3 class="fw-bold mb-0 text-info">{{ metrics.total_drives }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+            <i class="bi bi-rocket-takeoff"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Department Chart -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i> Department-Wise Placement Ratio</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="deptPlacementChart" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Placement Drives -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+          <h5 class="fw-bold mb-0"><i class="bi bi-buildings text-info me-2"></i> Upcoming & Active Placement Drives</h5>
+          <a href="{{ url_for('placement.drives') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% if drives %}
+              {% for d in drives[:4] %}
+                <div class="list-group-item p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="text-primary fs-6">{{ d.title }}</strong>
+                    <span class="badge bg-success">{{ d.status }}</span>
+                  </div>
+                  <div class="small text-muted mb-2">
+                    Company: <strong>{{ d.company.name }}</strong> | Venue: {{ d.venue }}
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between small">
+                    <span class="badge bg-light text-dark border">Min CGPA: {{ d.min_cgpa }}</span>
+                    <a href="{{ url_for('placement.drive_detail', drive_id=d.id) }}" class="btn btn-xs btn-outline-primary py-0">View Eligibility</a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="p-4 text-center text-muted">No placement drives scheduled yet.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('deptPlacementChart').getContext('2d');
+  
+  const deptData = {{ metrics.dept_stats | tojson }};
+  const labels = Object.keys(deptData);
+  const totalStudents = labels.map(k => deptData[k].total);
+  const placedStudents = labels.map(k => deptData[k].placed);
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Total Students',
+          data: totalStudents,
+          backgroundColor: '#cbd5e1'
+        },
+        {
+          label: 'Placed Students',
+          data: placedStudents,
+          backgroundColor: '#4f46e5'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

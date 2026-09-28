@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Recruiter Dashboard – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <!-- Hero Banner Header -->
+  <div class="dashboard-hero-banner mb-4" style="background-image: url('{{ url_for('static', filename='images/candidate_matching.jpg') }}');">
+    <div class="dashboard-hero-overlay d-flex align-items-center justify-content-between">
+      <div>
+        <span class="badge bg-info text-dark px-3 py-1 mb-2 rounded-pill"><i class="bi bi-building me-1"></i> {{ company.name if company else 'Corporate HR Portal' }}</span>
+        <h2 class="fw-bold mb-1">Recruiter & Talent Acquisition Portal</h2>
+        <p class="mb-0 text-light opacity-90">Manage job postings, applicant pipeline, AI candidate ranking, and digital offers.</p>
+      </div>
+      <a href="{{ url_for('recruiter.create_job') }}" class="btn btn-light btn-lg text-primary fw-bold shadow">
+        <i class="bi bi-plus-lg me-1"></i> Post New Job
+      </a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Active Posted Jobs</span>
+            <h3 class="fw-bold mb-0 text-primary">{{ metrics.total_jobs }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-briefcase-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Total Applicants</span>
+            <h3 class="fw-bold mb-0 text-info">{{ metrics.total_applicants }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">AI Shortlisted</span>
+            <h3 class="fw-bold mb-0 text-warning">{{ metrics.ai_shortlisted }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Selected Candidates</span>
+            <h3 class="fw-bold mb-0 text-success">{{ metrics.selected_candidates }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+            <i class="bi bi-person-check-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- Active Jobs Table -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+          <h5 class="fw-bold mb-0"><i class="bi bi-briefcase text-primary me-2"></i> Your Active Job Postings</h5>
+          <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-sm btn-outline-primary">Manage All</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Job Title</th>
+                  <th>Applicants</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if jobs %}
+                  {% for job in jobs[:5] %}
+                    <tr>
+                      <td>
+                        <strong class="text-dark d-block">{{ job.title }}</strong>
+                        <small class="text-muted">{{ job.salary_package }}</small>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary rounded-pill">{{ job.applications|length }} candidates</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-success">{{ job.status }}</span>
+                      </td>
+                      <td>
+                        <a href="{{ url_for('recruiter.ai_rank_candidates', job_id=job.id) }}" class="btn btn-sm btn-outline-primary" title="AI Ranking">
+                          <i class="bi bi-cpu me-1"></i> AI Rank
+                        </a>
+                        <a href="{{ url_for('recruiter.job_applicants', job_id=job.id) }}" class="btn btn-sm btn-light">Applicants</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">No jobs posted yet. Click 'Post New Job Opportunity' to begin.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Candidate Applications -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-info me-2"></i> Recent Candidate Applications</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% if recent_apps %}
+              {% for app in recent_apps %}
+                <div class="list-group-item p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="text-dark">{{ app.candidate.user.full_name }}</strong>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">{{ app.ai_score }}% Match</span>
+                  </div>
+                  <div class="small text-muted mb-1">Applied for: <strong>{{ app.job.title }}</strong></div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge {{ app.get_status_badge_class() }} small">{{ app.status }}</span>
+                    <a href="{{ url_for('recruiter.job_applicants', job_id=app.job.id) }}" class="btn btn-xs btn-outline-secondary py-0">Review</a>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="p-4 text-center text-muted">No recent application activity.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

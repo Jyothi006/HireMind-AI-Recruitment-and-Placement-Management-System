@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Hiring Manager Dashboard – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <!-- Hero Banner Header -->
+  <div class="dashboard-hero-banner mb-4" style="background-image: url('{{ url_for('static', filename='images/offer_placement.jpg') }}');">
+    <div class="dashboard-hero-overlay d-flex align-items-center justify-content-between">
+      <div>
+        <span class="badge bg-danger px-3 py-1 mb-2 rounded-pill"><i class="bi bi-person-check-fill me-1"></i> Executive Selection</span>
+        <h2 class="fw-bold mb-1">Hiring Manager Portal</h2>
+        <p class="mb-0 text-light opacity-90">Review shortlisted candidates, evaluate interviewer feedback, and authorize job offers.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold mb-0"><i class="bi bi-person-check-fill text-primary me-2"></i> Shortlisted Candidates Ready for Offer Authorization</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Candidate Name</th>
+              <th>Job Position</th>
+              <th>AI Score</th>
+              <th>Current Status</th>
+              <th class="pe-4 text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if applications %}
+              {% for app in applications %}
+                <tr>
+                  <td class="ps-4">
+                    <strong class="text-dark d-block">{{ app.candidate.user.full_name }}</strong>
+                    <small class="text-muted">{{ app.candidate.department }} (CGPA: {{ app.candidate.cgpa }})</small>
+                  </td>
+                  <td>{{ app.job.title if app.job else 'Campus Drive' }}</td>
+                  <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold fs-6">
+                      <i class="bi bi-cpu me-1"></i> {{ app.ai_score }}%
+                    </span>
+                  </td>
+                  <td><span class="badge {{ app.get_status_badge_class() }} fs-6">{{ app.status }}</span></td>
+                  <td class="pe-4 text-end">
+                    {% if app.status != 'Selected' and 'Offer' not in app.status %}
+                      <form method="POST" action="{{ url_for('hiring.select_candidate', app_id=app.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success fw-bold">
+                          <i class="bi bi-check-circle me-1"></i> Select Candidate
+                        </button>
+                      </form>
+                    {% endif %}
+                    {% if app.job %}
+                      <a href="{{ url_for('recruiter.generate_offer', app_id=app.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-award me-1"></i> Generate Offer
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">No shortlisted candidates pending approval.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+/* HireMind Custom Theme & Layout */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary-color: #06b6d4;
+  --dark-bg: #0f172a;
+  --sidebar-bg: #1e293b;
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  min-height: calc(100vh - 65px);
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-link {
+  color: #cbd5e1;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  margin: 0.2rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: var(--primary-color);
+}
+
+.sidebar .nav-link i {
+  font-size: 1.2rem;
+}
+
+/* Navbar */
+.top-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  height: 65px;
+}
+
+.brand-title {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dashboard Stat Cards */
+.stat-card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.stat-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Image Card Component with Gradient Overlay & Hover Zoom */
+.image-module-card {
+  position: relative;
+  min-height: 290px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-module-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 30px rgba(15, 23, 42, 0.22);
+}
+
+.image-module-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.5s ease;
+}
+
+.image-module-card:hover .image-module-card-bg {
+  transform: scale(1.08);
+}
+
+.image-module-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.88) 100%);
+  z-index: 1;
+}
+
+.image-module-card-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.75rem;
+  color: #ffffff;
+}
+
+/* Hero Section Banners */
+.hero-section {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.9) 0%, rgba(49, 46, 129, 0.9) 50%, rgba(67, 56, 202, 0.9) 100%),
+              url('../images/campus_placement.jpg') center/cover no-repeat;
+  color: #ffffff;
+  padding: 5rem 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.hero-title {
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.dashboard-hero-banner {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-hero-overlay {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.75) 100%);
+  padding: 2.25rem;
+  color: #ffffff;
+}
+
+/* Badges */
+.badge-soft-primary { background-color: #e0e7ff; color: #3730a3; }
+.badge-soft-success { background-color: #dcfce7; color: #166534; }
+.badge-soft-warning { background-color: #fef9c3; color: #854d0e; }
+.badge-soft-danger { background-color: #fee2e2; color: #991b1b; }
+.badge-soft-info { background-color: #cff4fc; color: #055160; }
+.badge-soft-purple { background-color: #f3e8ff; color: #6b21a8; }
+
+/* AI Match Meter & Pill */
+.ai-score-pill {
+  padding: 0.4rem 0.8rem;
+  font-weight: 700;
+  border-radius: 20rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Print Hall Ticket Styling */
+@media print {
+  .no-print, .sidebar, .top-navbar, footer {
+    display: none !important;
+  }
+  .hall-ticket-card {
+    border: 2px solid #000 !important;
+    page-break-inside: avoid;
+    margin-bottom: 2rem;
+  }
+}

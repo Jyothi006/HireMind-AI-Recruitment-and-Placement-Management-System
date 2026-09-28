@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  
+  <!-- Hero Section with Background Banner -->
+  <div class="hero-section text-center text-md-start rounded-4 p-5 mb-5 shadow-lg">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <span class="badge bg-info text-dark fw-bold px-3 py-2 mb-3 rounded-pill">
+          <i class="bi bi-stars me-1"></i> Academic Software Engineering & UML Project
+        </span>
+        <h1 class="hero-title mb-3">AI-Powered Recruitment & Placement Management</h1>
+        <p class="lead mb-4 opacity-90 fs-5">
+          Connect talent, companies, recruiters, and institutions through one intelligent recruitment and placement platform.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg fw-bold text-primary px-4 py-3 shadow">
+            <i class="bi bi-rocket-takeoff-fill me-2"></i> Get Started
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg fw-bold px-4 py-3">
+            <i class="bi bi-shield-lock me-2"></i> Login / Demo Accounts
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5 text-center d-none d-lg-block">
+        <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-light border-opacity-25 shadow-lg backdrop-blur">
+          <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="HireMind Brand" style="height: 75px; width: auto;" class="mb-3">
+          <h4 class="text-white fw-bold">HireMind NLP Engine</h4>
+          <p class="text-light small opacity-75">TF-IDF Vector Matching & Dynamic Skill Extraction</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Features Grid with High-Res Unsplash Stock Cards -->
+  <div class="mb-5">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">Explore Platform Modules</h2>
+      <p class="text-muted">Built specifically to manage end-to-end recruitment and institutional campus drives.</p>
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- Module 1: AI Resume Screening -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/resume_screening.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-primary mb-2"><i class="bi bi-file-earmark-text me-1"></i> NLP Module</span>
+              <h4 class="fw-bold text-white mb-2">AI Resume Screening</h4>
+              <p class="small text-light opacity-90">Parses PDF/DOCX resumes, automatically extracting candidate skills, education, and experience.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-primary">
+                Explore Resume Engine <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 2: Smart Candidate Matching -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/candidate_matching.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-info text-dark mb-2"><i class="bi bi-cpu me-1"></i> Vector Matching</span>
+              <h4 class="fw-bold text-white mb-2">Smart Candidate Matching</h4>
+              <p class="small text-light opacity-90">Uses TF-IDF + Cosine similarity to compare candidates against job criteria, generating 0–100% scores.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-dark">
+                View AI Ranking <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 3: Campus Placements (TPO) -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/campus_placement.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-success mb-2"><i class="bi bi-mortarboard me-1"></i> TPO Drive</span>
+              <h4 class="fw-bold text-white mb-2">Campus Placements</h4>
+              <p class="small text-light opacity-90">Full Placement Officer drive management, eligibility rules (CGPA, backlogs, branch), and One-Student-One-Job policy.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-success">
+                TPO Placement Portal <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 4: Skill Assessments -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/coding_assessment.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-warning text-dark mb-2"><i class="bi bi-journal-code me-1"></i> Assessment</span>
+              <h4 class="fw-bold text-white mb-2">Skill Assessments</h4>
+              <p class="small text-light opacity-90">Interactive MCQ quizzes across Aptitude, Technical, and Coding categories with real-time scoring.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-dark">
+                Take Skill Quizzes <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 5: Video Interviews -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/video_interview.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-purple text-white mb-2" style="background-color: #9333ea;"><i class="bi bi-camera-video me-1"></i> Interview Portal</span>
+              <h4 class="fw-bold text-white mb-2">Interview Management</h4>
+              <p class="small text-light opacity-90">Schedule technical/HR interviews, assign interviewers, and collect structured performance feedback.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-purple">
+                Interview Evaluations <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 6: Offer & Placement Tracking -->
+      <div class="col-md-6 col-lg-4">
+        <div class="image-module-card">
+          <div class="image-module-card-bg" style="background-image: url('{{ url_for('static', filename='images/offer_placement.jpg') }}');"></div>
+          <div class="image-module-card-overlay"></div>
+          <div class="image-module-card-content">
+            <div>
+              <span class="badge bg-danger mb-2"><i class="bi bi-award me-1"></i> Selection</span>
+              <h4 class="fw-bold text-white mb-2">Offer & Placement Tracking</h4>
+              <p class="small text-light opacity-90">Issue digital offer letters, manage candidate acceptances, and monitor analytics via Chart.js.</p>
+            </div>
+            <div>
+              <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-light fw-bold text-danger">
+                Track Job Offers <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- How HireMind Works Workflow Section -->
+  <div class="bg-white p-5 rounded-4 border shadow-sm mb-5">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">How HireMind Works</h2>
+      <p class="text-muted">8-Step Complete Recruitment & Placement Workflow</p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4 text-center">
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">1</span>
+          <h6 class="fw-bold">Create Profile</h6>
+          <small class="text-muted">Register candidate details, department, CGPA, and skills.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">2</span>
+          <h6 class="fw-bold">Upload Resume</h6>
+          <small class="text-muted">AI automatically parses text & skill inventory.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">3</span>
+          <h6 class="fw-bold">Find Opportunities</h6>
+          <small class="text-muted">Browse open jobs and campus placement drives.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">4</span>
+          <h6 class="fw-bold">AI Matching</h6>
+          <small class="text-muted">Real-time TF-IDF similarity calculation & ranking.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">5</span>
+          <h6 class="fw-bold">Assessment</h6>
+          <small class="text-muted">Complete assigned aptitude & technical quizzes.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">6</span>
+          <h6 class="fw-bold">Interview</h6>
+          <small class="text-muted">Attend interview and receive structured feedback.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-primary rounded-circle mb-2 fs-6">7</span>
+          <h6 class="fw-bold">Selection</h6>
+          <small class="text-muted">Hiring Manager approval & digital offer issuance.</small>
+        </div>
+      </div>
+      <div class="col">
+        <div class="p-3 border rounded-3 bg-light h-100">
+          <span class="badge bg-success rounded-circle mb-2 fs-6">8</span>
+          <h6 class="fw-bold">Placement</h6>
+          <small class="text-muted">Accept offer & update TPO placement status.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

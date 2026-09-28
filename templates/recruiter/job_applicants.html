@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Applicants for {{ job.title }} – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-sm btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Back to Jobs
+      </a>
+      <h2 class="fw-bold mb-1">Applicants: {{ job.title }}</h2>
+      <p class="text-muted mb-0">Total Applicants: {{ applications|length }} candidates</p>
+    </div>
+    <div>
+      <a href="{{ url_for('recruiter.ai_rank_candidates', job_id=job.id) }}" class="btn btn-primary fw-bold shadow-sm">
+        <i class="bi bi-cpu-fill me-1"></i> Run AI Candidate Ranking & Recommendation
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Candidate Name</th>
+              <th>Academic Info</th>
+              <th>AI Score</th>
+              <th>Resume</th>
+              <th>Application Status</th>
+              <th class="pe-4 text-end">Recruitment Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if applications %}
+              {% for app in applications %}
+                <tr>
+                  <td class="ps-4">
+                    <strong class="text-dark d-block">{{ app.candidate.user.full_name }}</strong>
+                    <small class="text-muted">{{ app.candidate.user.email }}</small>
+                  </td>
+                  <td>
+                    <span class="d-block small fw-semibold">{{ app.candidate.department }}</span>
+                    <small class="text-muted">CGPA: {{ app.candidate.cgpa }} | Backlogs: {{ app.candidate.backlogs }}</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-1 fw-bold">
+                      <i class="bi bi-cpu me-1"></i> {{ app.ai_score }}%
+                    </span>
+                  </td>
+                  <td>
+                    {% if app.candidate.resume %}
+                      <span class="badge bg-success"><i class="bi bi-file-earmark-check me-1"></i> Uploaded</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Missing</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="badge {{ app.get_status_badge_class() }} fs-6 px-3 py-1">
+                      {{ app.status }}
+                    </span>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <div class="dropdown d-inline-block">
+                      <button class="btn btn-sm btn-outline-primary dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown">
+                        Actions
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                          <form method="POST" action="{{ url_for('recruiter.update_app_status', app_id=app.id) }}">
+                            <input type="hidden" name="status" value="AI Shortlisted">
+                            <button type="submit" class="dropdown-item"><i class="bi bi-star me-2 text-warning"></i> AI Shortlist</button>
+                          </form>
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('assessment.assign_assessment', app_id=app.id) }}"><i class="bi bi-journal-check me-2 text-info"></i> Assign Skill Assessment</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('recruiter.schedule_interview', app_id=app.id) }}"><i class="bi bi-calendar-event me-2 text-purple"></i> Schedule Interview</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('recruiter.generate_offer', app_id=app.id) }}"><i class="bi bi-award me-2 text-success"></i> Generate Digital Offer</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <form method="POST" action="{{ url_for('recruiter.update_app_status', app_id=app.id) }}">
+                            <input type="hidden" name="status" value="Rejected">
+                            <button type="submit" class="dropdown-item text-danger"><i class="bi bi-x-circle me-2"></i> Reject Candidate</button>
+                          </form>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" class="text-center py-5 text-muted">No candidate applications received for this job yet.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

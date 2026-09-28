@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}My Job Offers – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Official Job Offers</h2>
+      <p class="text-muted mb-0">Review digital placement offer letters and accept or decline employment packages.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% if offers %}
+      {% for offer in offers %}
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-success text-white p-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-white text-success fw-bold mb-1">Official Digital Offer</span>
+                  <h4 class="fw-bold mb-0">{{ offer.job_title }}</h4>
+                  <small class="opacity-90">{{ offer.company.name }}</small>
+                </div>
+                <h3 class="fw-bold mb-0">{{ offer.salary_package }}</h3>
+              </div>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="p-3 bg-light rounded-3 mb-3 border">
+                <div class="row g-2 small">
+                  <div class="col-6">
+                    <span class="text-muted d-block">Expected Joining Date:</span>
+                    <strong class="text-dark">{{ offer.joining_date.strftime('%b %d, %Y') }}</strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">Response Deadline:</span>
+                    <strong class="text-dark">{{ offer.deadline.strftime('%b %d, %Y') }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h6 class="fw-bold mb-2">Offer Letter Summary:</h6>
+                <div class="p-3 bg-white rounded-3 border small font-monospace" style="max-height: 150px; overflow-y: auto;">
+                  {{ offer.offer_letter_text }}
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                <div>
+                  <span class="text-muted small d-block">Current Status:</span>
+                  <span class="badge bg-warning text-dark fs-6">{{ offer.status }}</span>
+                </div>
+
+                {% if offer.status == 'Sent' %}
+                  <div class="d-flex gap-2">
+                    <form method="POST" action="{{ url_for('candidate.respond_offer', offer_id=offer.id) }}">
+                      <input type="hidden" name="action" value="reject">
+                      <button type="submit" class="btn btn-outline-danger fw-bold" onclick="return confirm('Decline this offer?')">
+                        Decline
+                      </button>
+                    </form>
+
+                    <form method="POST" action="{{ url_for('candidate.respond_offer', offer_id=offer.id) }}">
+                      <input type="hidden" name="action" value="accept">
+                      <button type="submit" class="btn btn-success fw-bold shadow-sm" onclick="return confirm('Accept this offer? Note: This will trigger the One-Student-One-Job policy.')">
+                        <i class="bi bi-check-circle-fill me-1"></i> Accept Offer
+                      </button>
+                    </form>
+                  </div>
+                {% elif offer.status == 'Accepted' %}
+                  <span class="badge bg-success fs-6 py-2 px-3"><i class="bi bi-check-all me-1"></i> Offer Accepted</span>
+                {% elif offer.status == 'Rejected' %}
+                  <span class="badge bg-danger fs-6 py-2 px-3">Offer Declined</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-award display-3 d-block mb-3 text-secondary"></i>
+        <h5>No Offers Received Yet</h5>
+        <p class="small">Keep applying for jobs and attending scheduled interviews.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

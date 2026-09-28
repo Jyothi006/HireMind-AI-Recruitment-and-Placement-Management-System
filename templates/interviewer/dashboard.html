@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Interviewer Dashboard – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <!-- Hero Banner Header -->
+  <div class="dashboard-hero-banner mb-4" style="background-image: url('{{ url_for('static', filename='images/video_interview.jpg') }}');">
+    <div class="dashboard-hero-overlay d-flex align-items-center justify-content-between">
+      <div>
+        <span class="badge bg-purple text-white px-3 py-1 mb-2 rounded-pill" style="background-color: #9333ea;"><i class="bi bi-camera-video me-1"></i> Technical & HR Evaluation</span>
+        <h2 class="fw-bold mb-1">Interviewer Evaluation Portal</h2>
+        <p class="mb-0 text-light opacity-90">Conduct candidate interviews, evaluate technical/HR performance, and submit structured feedback.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Candidate Name</th>
+              <th>Interview Title</th>
+              <th>Type</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th class="pe-4 text-end">Evaluation Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if interviews %}
+              {% for it in interviews %}
+                <tr>
+                  <td class="ps-4">
+                    <strong class="text-dark d-block">{{ it.candidate.user.full_name }}</strong>
+                    <small class="text-muted">{{ it.candidate.department }} (CGPA: {{ it.candidate.cgpa }})</small>
+                  </td>
+                  <td>{{ it.title }}</td>
+                  <td><span class="badge bg-purple text-white">{{ it.interview_type }}</span></td>
+                  <td><small class="text-muted"><i class="bi bi-clock me-1"></i> {{ it.scheduled_time.strftime('%b %d, %Y %I:%M %p') }}</small></td>
+                  <td>
+                    <span class="badge {{ 'bg-success' if it.status == 'Completed' else 'bg-warning text-dark' }}">{{ it.status }}</span>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <a href="{{ url_for('interview.evaluate', interview_id=it.id) }}" class="btn btn-sm btn-primary fw-bold">
+                      <i class="bi bi-journal-check me-1"></i> Evaluate & Feedback
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" class="text-center py-5 text-muted">No interviews assigned yet.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Questions – {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="mb-4">
+    <a href="{{ url_for('assessment.list_assessments') }}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i> Back to Assessments
+    </a>
+    <h2 class="fw-bold mb-1">Manage Questions: {{ assessment.title }}</h2>
+    <p class="text-muted mb-0">Total Questions: {{ assessment.questions|length }} | Total Marks: {{ assessment.total_marks }}</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Question Form -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2"></i> Add Multiple Choice Question</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('assessment.manage_questions', assessment_id=assessment.id) }}">
+            
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Question Text</label>
+              <textarea class="form-control" name="text" rows="3" required placeholder="What is the time complexity of searching an element in a balanced Binary Search Tree?"></textarea>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Option A</label>
+              <input type="text" class="form-control form-control-sm" name="option_a" required placeholder="O(1)">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Option B</label>
+              <input type="text" class="form-control form-control-sm" name="option_b" required placeholder="O(log n)">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-semibold">Option C</label>
+              <input type="text" class="form-control form-control-sm" name="option_c" required placeholder="O(n)">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Option D</label>
+              <input type="text" class="form-control form-control-sm" name="option_d" required placeholder="O(n log n)">
+            </div>
+
+            <div class="row g-2 mb-4">
+              <div class="col-6">
+                <label class="form-label fw-semibold">Correct Option</label>
+                <select class="form-select" name="correct_option" required>
+                  <option value="A">Option A</option>
+                  <option value="B" selected>Option B</option>
+                  <option value="C">Option C</option>
+                  <option value="D">Option D</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Marks</label>
+                <input type="number" class="form-control" name="marks" value="10" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+              <i class="bi bi-save me-1"></i> Save Question
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questions List -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-journal-text me-2 text-primary"></i> Assessment Question Bank</h5>
+        </div>
+        <div class="card-body p-3">
+          {% if assessment.questions %}
+            {% for q in assessment.questions %}
+              <div class="p-3 border rounded-3 mb-3 bg-light">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="fw-bold mb-0 text-dark">Q{{ loop.index }}. {{ q.text }}</h6>
+                  <span class="badge bg-primary">{{ q.marks }} Marks</span>
+                </div>
+
+                <div class="row g-2 small mb-2">
+                  <div class="col-6 {{ 'fw-bold text-success' if q.correct_option == 'A' }}">A. {{ q.option_a }}</div>
+                  <div class="col-6 {{ 'fw-bold text-success' if q.correct_option == 'B' }}">B. {{ q.option_b }}</div>
+                  <div class="col-6 {{ 'fw-bold text-success' if q.correct_option == 'C' }}">C. {{ q.option_c }}</div>
+                  <div class="col-6 {{ 'fw-bold text-success' if q.correct_option == 'D' }}">D. {{ q.option_d }}</div>
+                </div>
+                
+                <span class="badge bg-success bg-opacity-10 text-success small">Correct Answer: Option {{ q.correct_option }}</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-5 text-muted">No questions added yet. Use the form on the left to add MCQ items.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

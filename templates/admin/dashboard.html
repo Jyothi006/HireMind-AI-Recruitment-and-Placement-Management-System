@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Overview – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">System Administration Panel</h2>
+      <p class="text-muted mb-0">Platform overview, security controls, and audit log telemetry.</p>
+    </div>
+    <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary fw-bold shadow-sm">
+      <i class="bi bi-person-plus-fill me-1"></i> Create System User
+    </a>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Total Candidates</span>
+            <h3 class="fw-bold mb-0 text-primary">{{ metrics.total_candidates }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-people-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Recruiters & Companies</span>
+            <h3 class="fw-bold mb-0 text-info">{{ metrics.total_recruiters }} / {{ metrics.total_companies }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+            <i class="bi bi-building"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Total Applications</span>
+            <h3 class="fw-bold mb-0 text-warning">{{ metrics.total_applications }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-send-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card p-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span class="text-muted small fw-semibold">Confirmed Placements</span>
+            <h3 class="fw-bold mb-0 text-success">{{ metrics.total_placed }}</h3>
+          </div>
+          <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+            <i class="bi bi-award-fill"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-primary me-2"></i> Application Status Distribution</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="appStatusChart" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-journal-text me-2 text-dark"></i> Recent System Audit Logs</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% if audit_logs %}
+              {% for log in audit_logs %}
+                <div class="list-group-item p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong class="text-dark small">{{ log.action }}</strong>
+                    <small class="text-muted">{{ log.timestamp.strftime('%b %d, %H:%M') }}</small>
+                  </div>
+                  <p class="mb-0 text-secondary small">{{ log.details }}</p>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="p-4 text-center text-muted">No audit logs recorded.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('appStatusChart').getContext('2d');
+  const appData = {{ metrics.app_status_dist | tojson }};
+  
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(appData),
+      datasets: [{
+        data: Object.values(appData),
+        backgroundColor: ['#64748b', '#06b6d4', '#4f46e5', '#eab308', '#9333ea', '#22c55e', '#ef4444']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+});
+</script>
+{% endblock %}

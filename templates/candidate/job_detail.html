@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="mb-4">
+    <a href="{{ url_for('candidate.jobs') }}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i> Back to Jobs
+    </a>
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <h2 class="fw-bold mb-1">{{ job.title }}</h2>
+        <h5 class="text-muted"><i class="bi bi-building me-1"></i> {{ job.company.name }} | {{ job.location }}</h5>
+      </div>
+      <span class="badge bg-success fs-5 px-3 py-2">{{ job.salary_package }}</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <!-- Job Description & Specs -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold text-primary mb-3">Job Overview & Requirements</h5>
+          <p class="text-secondary leading-relaxed mb-4" style="white-space: pre-line;">{{ job.description }}</p>
+
+          <hr class="my-4">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <span class="text-muted small d-block">Minimum Qualification</span>
+              <strong class="text-dark">{{ job.min_qualification }}</strong>
+            </div>
+            <div class="col-md-6">
+              <span class="text-muted small d-block">Experience Requirement</span>
+              <strong class="text-dark">{{ job.min_experience }} years</strong>
+            </div>
+            <div class="col-md-6">
+              <span class="text-muted small d-block">Job Type</span>
+              <span class="badge bg-secondary">{{ job.job_type }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="text-muted small d-block">Application Deadline</span>
+              <strong class="text-dark">{{ job.deadline.strftime('%b %d, %Y') if job.deadline else 'Open Until Filled' }}</strong>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <span class="text-muted small d-block mb-2 font-monospace">REQUIRED TECHNICAL SKILLS</span>
+            <div class="d-flex flex-wrap gap-2">
+              {% for skill in job.get_required_skills_list() %}
+                <span class="badge bg-light text-dark border fs-6 px-3 py-2"><i class="bi bi-code-slash me-1"></i> {{ skill }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Match Engine Preview Sidebar -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-dark text-white p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="fw-bold mb-0"><i class="bi bi-cpu text-info me-2"></i> Real-time AI Candidate Match</h5>
+            <span class="badge bg-info text-dark">AI-assisted recommendation</span>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          
+          <div class="text-center py-3 mb-4 bg-light rounded-4 border">
+            <span class="text-muted small d-block font-monospace mb-1">COMPUTED SIMILARITY SCORE</span>
+            <h1 class="display-3 fw-bold text-primary mb-0">{{ ai_match.overall_score }}%</h1>
+            <span class="badge bg-primary rounded-pill px-3 py-1">{{ ai_match.recommendation }}</span>
+          </div>
+
+          <!-- Explainability Breakdown -->
+          <h6 class="fw-bold mb-3"><i class="bi bi-list-check me-1"></i> AI Match Breakdown:</h6>
+          
+          <div class="mb-3">
+            <span class="small fw-bold text-success d-block mb-1"><i class="bi bi-check-circle-fill me-1"></i> Matched Skills:</span>
+            <div class="d-flex flex-wrap gap-1">
+              {% if ai_match.matched_skills %}
+                {% for s in ai_match.matched_skills %}
+                  <span class="badge bg-success bg-opacity-10 text-success">{{ s }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted small">None matched</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <span class="small fw-bold text-danger d-block mb-1"><i class="bi bi-x-circle-fill me-1"></i> Missing Skills:</span>
+            <div class="d-flex flex-wrap gap-1">
+              {% if ai_match.missing_skills %}
+                {% for s in ai_match.missing_skills %}
+                  <span class="badge bg-danger bg-opacity-10 text-danger">{{ s }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="badge bg-success bg-opacity-10 text-success">All skills present!</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 mb-4 small">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Qualification Alignment:</span>
+              <strong class="{{ 'text-success' if ai_match.qualification_match else 'text-danger' }}">
+                {{ 'Matched' if ai_match.qualification_match else 'Mismatch' }}
+              </strong>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>Experience Requirement:</span>
+              <strong class="{{ 'text-success' if ai_match.experience_match else 'text-danger' }}">
+                {{ 'Met' if ai_match.experience_match else 'Below requirement' }}
+              </strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>TF-IDF Vector Cosine Sim:</span>
+              <strong class="text-dark">{{ ai_match.cosine_similarity }}</strong>
+            </div>
+          </div>
+
+          <!-- Application Action -->
+          {% if application %}
+            <div class="alert alert-success text-center border-0 shadow-sm mb-0">
+              <i class="bi bi-check-circle-fill fs-4 d-block mb-1"></i>
+              <strong>Application Submitted!</strong>
+              <p class="small mb-0">Current Status: <span class="badge {{ application.get_status_badge_class() }}">{{ application.status }}</span></p>
+            </div>
+          {% else %}
+            {% if 'Placed' in profile.placement_status %}
+              <div class="alert alert-warning text-center border-0 mb-0">
+                <i class="bi bi-exclamation-triangle-fill d-block fs-4 mb-1"></i>
+                <strong>Application Restricted</strong>
+                <p class="small mb-0">You are already placed under the One-Student-One-Job policy.</p>
+              </div>
+            {% else %}
+              <form method="POST" action="{{ url_for('candidate.apply_job', job_id=job.id) }}">
+                <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                  <i class="bi bi-send-fill me-2"></i> Submit Application Now
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
