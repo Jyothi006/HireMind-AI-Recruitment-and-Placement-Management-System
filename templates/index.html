@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}HireMind – AI Recruitment & Placement{% endblock %}
+
+{% block content %}
+
+<div class="hiremind-home">
+
+    <!-- =====================================================
+         HOME + LOGIN
+         ===================================================== -->
+
+    <section class="home-login-section" id="login">
+        <img
+            class="home-background-image"
+            src="{{ url_for('static', filename='images/corporate-office.jpg') }}"
+            alt=""
+            aria-hidden="true"
+            fetchpriority="high"
+        >
+
+        <div class="home-login-container">
+
+            <!-- LEFT: HOME INTRO -->
+
+            <div class="home-intro">
+
+                <span class="home-badge">
+                    <i class="bi bi-stars"></i>
+                    HireMind AI
+                </span>
+
+                <h1>
+                    Smart Hiring.
+                    <span>Better Careers.</span>
+                </h1>
+
+                <p class="home-description">
+                    An AI-powered recruitment platform connecting talented candidates with the right opportunities through intelligent screening and streamlined hiring.
+                </p>
+
+                <div class="home-hero-actions">
+                    <a class="home-cta-primary" href="{{ url_for('auth.register') }}">
+                        Get Started
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="home-cta-secondary" href="{{ url_for('candidate.jobs') }}">
+                        Explore Opportunities
+                    </a>
+                </div>
+
+                <div class="home-intro-note">
+                    <i class="bi bi-shield-check"></i>
+                    One workspace for candidates, recruiters and hiring teams.
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT: LOGIN -->
+
+            <div class="home-login-card">
+
+                <div class="home-login-header">
+
+                    <img
+                        class="auth-brand-logo"
+                        src="{{ url_for('static', filename='images/hiremind-brand.png') }}"
+                        alt="HireMind"
+                        width="180"
+                        height="64"
+                    >
+
+                    <h2>Welcome Back!</h2>
+
+                    <p>
+                        Sign in to continue to your HireMind account
+                    </p>
+
+                </div>
+
+
+                <div class="home-login-body">
+
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+
+                        <!-- EMAIL -->
+
+                        <div class="home-login-field">
+
+                            <label for="home-email">
+                                Email Address
+                            </label>
+
+                            <div class="home-login-input">
+
+                                <i class="bi bi-envelope"></i>
+
+                                <input
+                                    type="email"
+                                    id="home-email"
+                                    name="email"
+                                    placeholder="Enter your email"
+                                    autocomplete="email"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="home-login-field">
+
+                            <label for="home-password">
+                                Password
+                            </label>
+
+                            <div class="home-login-input">
+
+                                <i class="bi bi-lock"></i>
+
+                                <input
+                                    type="password"
+                                    id="home-password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    autocomplete="current-password"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ROLE -->
+
+                        <div class="home-login-field">
+
+                            <label for="home-role">
+                                User Role
+                            </label>
+
+                            <div class="home-login-input">
+
+                                <i class="bi bi-person-badge"></i>
+
+                                <select
+                                    id="home-role"
+                                    name="role"
+                                    onchange="fillHomeDemoCredentials(this)"
+                                    required
+                                >
+                                    <option value="" selected disabled>
+                                        Select your role
+                                    </option>
+
+                                    <option
+                                        value="candidate"
+                                        data-email="student@hiremind.edu"
+                                        data-password="password123"
+                                    >
+                                        Candidate / Student
+                                    </option>
+
+                                    <option
+                                        value="recruiter"
+                                        data-email="recruiter@techcorp.com"
+                                        data-password="password123"
+                                    >
+                                        Recruiter / HR
+                                    </option>
+
+                                    <option
+                                        value="tpo"
+                                        data-email="tpo@hiremind.edu"
+                                        data-password="password123"
+                                    >
+                                        Placement Officer / TPO
+                                    </option>
+
+                                    <option
+                                        value="interviewer"
+                                        data-email="interviewer@techcorp.com"
+                                        data-password="password123"
+                                    >
+                                        Interviewer
+                                    </option>
+
+                                    <option
+                                        value="hiring_manager"
+                                        data-email="hiring@techcorp.com"
+                                        data-password="password123"
+                                    >
+                                        Hiring Manager
+                                    </option>
+
+                                    <option
+                                        value="company_rep"
+                                        data-email="rep@innovate.com"
+                                        data-password="password123"
+                                    >
+                                        Company Representative
+                                    </option>
+
+                                    <option
+                                        value="admin"
+                                        data-email="admin@hiremind.edu"
+                                        data-password="password123"
+                                    >
+                                        System Administrator
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <small class="home-demo-hint">
+                                <i class="bi bi-info-circle"></i>
+                                Select a role to automatically fill demo credentials.
+                            </small>
+
+                        </div>
+
+
+                        <!-- REMEMBER -->
+
+                        <div class="home-login-options">
+
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="remember"
+                                >
+                                <span>Remember me</span>
+                            </label>
+
+                        </div>
+
+
+                        <!-- LOGIN -->
+
+                        <button
+                            type="submit"
+                            class="home-login-button"
+                        >
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Sign In
+                        </button>
+
+                    </form>
+
+
+                    <div class="home-register">
+                        Don't have an account?
+                        <a href="{{ url_for('auth.register') }}">
+                            Register here
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PLATFORM MODULES
+         ===================================================== -->
+
+    <section class="platform-section">
+
+        <div class="platform-heading">
+
+            <span class="platform-label">
+                PLATFORM
+            </span>
+
+            <h2>Explore Platform Modules</h2>
+
+            <p>
+                Everything you need for intelligent recruitment
+                and institutional placement management.
+            </p>
+
+        </div>
+
+
+        <div class="platform-grid">
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-file-earmark-person"></i>
+                </div>
+                <h3>AI Resume Screening</h3>
+                <p>
+                    Parse PDF and DOCX resumes and automatically extract
+                    candidate skills, education and experience.
+                </p>
+            </article>
+
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <h3>Smart Candidate Matching</h3>
+                <p>
+                    Use TF-IDF and Cosine Similarity to rank candidates
+                    according to job requirements.
+                </p>
+            </article>
+
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <h3>Campus Placements</h3>
+                <p>
+                    Manage placement drives, student eligibility,
+                    applications and placement status.
+                </p>
+            </article>
+
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-journal-code"></i>
+                </div>
+                <h3>Skill Assessments</h3>
+                <p>
+                    Conduct aptitude, technical and coding assessments
+                    with real-time scoring.
+                </p>
+            </article>
+
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-camera-video"></i>
+                </div>
+                <h3>Interview Management</h3>
+                <p>
+                    Schedule interviews, assign interviewers and
+                    collect structured candidate feedback.
+                </p>
+            </article>
+
+
+            <article class="platform-card">
+                <div class="platform-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+                <h3>Offer & Placement Tracking</h3>
+                <p>
+                    Manage offers, candidate acceptance and final
+                    placement analytics.
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         WORKFLOW
+         ===================================================== -->
+
+    <section class="hm-workflow">
+
+        <div class="hm-section-heading">
+
+            <span class="platform-label">
+                WORKFLOW
+            </span>
+
+            <h2>How HireMind Works</h2>
+
+            <p>
+                An end-to-end recruitment and placement workflow.
+            </p>
+
+        </div>
+
+
+        <div class="hm-workflow-grid">
+
+            <div class="hm-step">
+                <div class="hm-step-number">1</div>
+                <h4>Create Profile</h4>
+                <p>Register candidate details, department, CGPA and skills.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">2</div>
+                <h4>Upload Resume</h4>
+                <p>AI parses the resume and builds a skill inventory.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">3</div>
+                <h4>Find Opportunities</h4>
+                <p>Browse jobs and campus placement drives.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">4</div>
+                <h4>AI Matching</h4>
+                <p>Calculate similarity scores and rank candidates.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">5</div>
+                <h4>Assessment</h4>
+                <p>Complete aptitude and technical assessments.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">6</div>
+                <h4>Interview</h4>
+                <p>Attend interviews and receive structured feedback.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number">7</div>
+                <h4>Selection</h4>
+                <p>Hiring Manager reviews and authorizes offers.</p>
+            </div>
+
+            <div class="hm-step">
+                <div class="hm-step-number hm-step-final">8</div>
+                <h4>Placement</h4>
+                <p>Accept the offer and update placement status.</p>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+function fillHomeDemoCredentials(select) {
+
+    const selectedOption =
+        select.options[select.selectedIndex];
+
+    const email =
+        selectedOption.getAttribute("data-email");
+
+    const password =
+        selectedOption.getAttribute("data-password");
+
+    if (email && password) {
+        document.getElementById("home-email").value = email;
+        document.getElementById("home-password").value = password;
+    }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Assessments – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Skill Assessment Library</h2>
+      <p class="text-muted mb-0">Automated multiple-choice technical & aptitude testing quizzes.</p>
+    </div>
+    {% if current_user.role in ['recruiter', 'tpo', 'admin'] %}
+      <a href="{{ url_for('assessment.create_assessment') }}" class="btn btn-primary fw-bold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Create New Assessment
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="row g-4">
+    {% if assessments %}
+      {% for ass in assessments %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 h-100 p-3 stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-primary bg-opacity-10 text-primary">{{ ass.category }}</span>
+              <span class="badge bg-secondary">{{ ass.questions|length }} Questions</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">{{ ass.title }}</h5>
+            <p class="small text-muted mb-3">{{ ass.description[:100] if ass.description else 'Technical & Skill evaluation quiz.' }}...</p>
+            
+            <div class="p-2 bg-light rounded-3 mb-3 small d-flex justify-content-between">
+              <span>Duration: <strong>{{ ass.duration_minutes }} mins</strong></span>
+              <span>Pass Score: <strong>{{ ass.pass_marks }}%</strong></span>
+            </div>
+
+            {% if current_user.role in ['recruiter', 'tpo', 'admin'] %}
+              <a href="{{ url_for('assessment.manage_questions', assessment_id=ass.id) }}" class="btn btn-outline-primary btn-sm fw-bold w-100 mt-auto">
+                <i class="bi bi-gear me-1"></i> Manage Questions ({{ ass.total_marks }} Marks)
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12 text-center py-5 text-muted">No assessments created yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

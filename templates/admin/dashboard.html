@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Platform Overview – HireMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-page">
+    <header class="workspace-heading">
+        <div>
+            <div class="workspace-eyebrow">ADMINISTRATION / OVERVIEW</div>
+            <h1>Good day, {{ current_user.full_name.split()[0] }}</h1>
+            <p>Monitor platform activity, user growth, and hiring performance.</p>
+        </div>
+        <div class="workspace-actions">
+            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary">
+                <i class="bi bi-people me-1" aria-hidden="true"></i> Manage users
+            </a>
+            <a href="{{ url_for('admin.create_user') }}" class="btn btn-primary">
+                <i class="bi bi-person-plus me-1" aria-hidden="true"></i> Create user
+            </a>
+        </div>
+    </header>
+
+    <section class="row g-3 dashboard-metrics" aria-label="Platform metrics">
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-blue"><i class="bi bi-people" aria-hidden="true"></i></span>
+                <span class="metric-label">Total users</span>
+                <strong class="metric-value">{{ metrics.total_users }}</strong>
+                <span class="metric-note">Across all roles</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-teal"><i class="bi bi-person-badge" aria-hidden="true"></i></span>
+                <span class="metric-label">Candidates</span>
+                <strong class="metric-value">{{ metrics.total_candidates }}</strong>
+                <span class="metric-note">Candidate profiles</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-violet"><i class="bi bi-building" aria-hidden="true"></i></span>
+                <span class="metric-label">Recruiter accounts</span>
+                <strong class="metric-value">{{ metrics.total_recruiters }}</strong>
+                <span class="metric-note">{{ metrics.total_companies }} companies</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-blue"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                <span class="metric-label">Job postings</span>
+                <strong class="metric-value">{{ metrics.total_jobs }}</strong>
+                <span class="metric-note">{{ metrics.job_status_dist.Open }} open</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-amber"><i class="bi bi-send" aria-hidden="true"></i></span>
+                <span class="metric-label">Applications</span>
+                <strong class="metric-value">{{ metrics.total_applications }}</strong>
+                <span class="metric-note">{{ metrics.total_selected }} selected or offered</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-2">
+            <article class="metric-card">
+                <span class="metric-icon metric-green"><i class="bi bi-award" aria-hidden="true"></i></span>
+                <span class="metric-label">Placements</span>
+                <strong class="metric-value">{{ metrics.total_placed }}</strong>
+                <span class="metric-note">{{ metrics.total_drives }} placement drives</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Application pipeline</h2>
+                        <p>Current distribution across hiring stages</p>
+                    </div>
+                    <span class="panel-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
+                </div>
+                <div class="chart-frame">
+                    <canvas id="appStatusChart" role="img" aria-label="Application status distribution chart"></canvas>
+                    <p class="chart-empty" id="appStatusEmpty" hidden>No application activity to chart yet.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Job posting status</h2>
+                        <p>Open, closed, and draft roles</p>
+                    </div>
+                    <span class="panel-icon panel-icon-teal"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                </div>
+                <div class="chart-frame chart-frame-compact">
+                    <canvas id="jobStatusChart" role="img" aria-label="Job posting status chart"></canvas>
+                    <p class="chart-empty" id="jobStatusEmpty" hidden>No job postings to chart yet.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3">
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Recent platform activity</h2>
+                        <p>Latest events recorded in the audit log</p>
+                    </div>
+                    <a class="panel-link" href="{{ url_for('admin.logs') }}">View audit log <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="activity-list">
+                    {% for log in audit_logs %}
+                        <div class="activity-row">
+                            <span class="activity-dot"></span>
+                            <div class="activity-copy">
+                                <strong>{{ log.action }}</strong>
+                                <span>{{ log.details or log.target or 'Platform activity recorded' }}</span>
+                            </div>
+                            <time datetime="{{ log.timestamp.isoformat() }}">{{ log.timestamp.strftime('%b %d, %H:%M') }}</time>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-journal-text" aria-hidden="true"></i>
+                            <p>No platform activity has been recorded yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Recently added users</h2>
+                        <p>Latest accounts across the platform</p>
+                    </div>
+                    <a class="panel-link" href="{{ url_for('admin.users') }}">All users <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="user-list">
+                    {% for user in recent_users %}
+                        <div class="user-row">
+                            <span class="user-initial">{{ user.full_name[:1]|upper }}</span>
+                            <div class="user-copy">
+                                <strong>{{ user.full_name }}</strong>
+                                <span>{{ user.email }}</span>
+                            </div>
+                            <span class="role-chip">{{ user.get_role_display() }}</span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-person-plus" aria-hidden="true"></i>
+                            <p>No user accounts have been created yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('admin.create_user') }}" class="btn btn-outline-primary w-100 mt-3">
+                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Add a user
+                </a>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const charts = [
+        {
+            canvas: document.getElementById('appStatusChart'),
+            empty: document.getElementById('appStatusEmpty'),
+            values: {{ metrics.app_status_dist | tojson }},
+            type: 'doughnut',
+            colors: ['#64748b', '#94a3b8', '#2563eb', '#d97706', '#0f766e', '#15803d', '#14b8a6', '#166534', '#dc2626']
+        },
+        {
+            canvas: document.getElementById('jobStatusChart'),
+            empty: document.getElementById('jobStatusEmpty'),
+            values: {{ metrics.job_status_dist | tojson }},
+            type: 'doughnut',
+            colors: ['#2563eb', '#64748b', '#d97706']
+        }
+    ];
+
+    charts.forEach(function (chart) {
+        const labels = Object.keys(chart.values);
+        const values = Object.values(chart.values);
+        const hasData = values.some(function (value) { return value > 0; });
+        if (!hasData || typeof Chart === 'undefined') {
+            chart.canvas.hidden = true;
+            chart.empty.hidden = false;
+            return;
+        }
+        new Chart(chart.canvas.getContext('2d'), {
+            type: chart.type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: chart.colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#64748b', padding: 16, usePointStyle: true, pointStyle: 'circle' }
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Dashboard – HireMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-page">
+    <header class="workspace-heading">
+        <div>
+            <div class="workspace-eyebrow">CAREER SPACE / OVERVIEW</div>
+            <h1>Welcome back, {{ profile.user.full_name.split()[0] }}</h1>
+            <p>Your next opportunity starts with a great match. Here’s your career snapshot.</p>
+        </div>
+        <div class="workspace-actions">
+            <a href="{{ url_for('candidate.profile') }}" class="btn btn-outline-primary">
+                <i class="bi bi-person me-1" aria-hidden="true"></i> Edit profile
+            </a>
+            <a href="{{ url_for('candidate.jobs') }}" class="btn btn-primary">
+                <i class="bi bi-search me-1" aria-hidden="true"></i> Explore jobs
+            </a>
+        </div>
+    </header>
+
+    {% if 'Placed' in (profile.placement_status or '') %}
+        <div class="alert alert-warning d-flex align-items-start gap-3 mb-4" role="status">
+            <i class="bi bi-info-circle fs-5" aria-hidden="true"></i>
+            <div>
+                <strong>Placement status: {{ profile.placement_status }}</strong>
+                <p class="mb-0 small">Your institution’s one-student-one-job policy may restrict additional applications.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <section class="row g-3 dashboard-metrics" aria-label="Your career metrics">
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-blue"><i class="bi bi-person-check" aria-hidden="true"></i></span>
+                <span class="metric-label">Profile completion</span>
+                <strong class="metric-value">{{ profile.calculate_profile_completion() }}%</strong>
+                <div class="metric-progress" role="progressbar" aria-label="Profile completion" aria-valuenow="{{ profile.calculate_profile_completion() }}" aria-valuemin="0" aria-valuemax="100">
+                    <span style="width: {{ profile.calculate_profile_completion() }}%"></span>
+                </div>
+                <a class="metric-foot-link" href="{{ url_for('candidate.profile') }}">Complete your profile <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-teal"><i class="bi bi-send" aria-hidden="true"></i></span>
+                <span class="metric-label">Applications</span>
+                <strong class="metric-value">{{ applications|length }}</strong>
+                <span class="metric-note">Submitted opportunities</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-violet"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
+                <span class="metric-label">Interviews</span>
+                <strong class="metric-value">{{ interviews|length }}</strong>
+                <span class="metric-note">Scheduled and completed</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-green"><i class="bi bi-award" aria-hidden="true"></i></span>
+                <span class="metric-label">Offers</span>
+                <strong class="metric-value">{{ offers|length }}</strong>
+                <span class="metric-note">Your offer activity</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+        <div class="col-xl-8">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Open opportunities</h2>
+                        <p>Current roles you haven’t applied to yet</p>
+                    </div>
+                    <a class="panel-link" href="{{ url_for('candidate.jobs') }}">Browse all jobs <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="opportunity-list">
+                    {% for job in available_jobs %}
+                        <div class="opportunity-row">
+                            <span class="opportunity-mark"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                            <div class="opportunity-copy">
+                                <strong>{{ job.title }}</strong>
+                                <span>{{ job.company.name }}{% if job.location %} · {{ job.location }}{% endif %}</span>
+                            </div>
+                            <span class="job-type-chip">{{ job.job_type or 'Full-Time' }}</span>
+                            <a class="btn btn-sm btn-outline-primary opportunity-action" href="{{ url_for('candidate.job_detail', job_id=job.id) }}">View role</a>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <p>No new open roles right now. Check back soon.</p>
+                            <a href="{{ url_for('candidate.jobs') }}" class="btn btn-sm btn-outline-primary">Browse jobs</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Upcoming interviews</h2>
+                        <p>Your interview schedule</p>
+                    </div>
+                    <span class="panel-icon panel-icon-teal"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                </div>
+                <div class="compact-list">
+                    {% for interview in interviews[:4] %}
+                        <div class="compact-row">
+                            <span class="compact-date">
+                                <strong>{{ interview.scheduled_time.strftime('%d') }}</strong>
+                                <small>{{ interview.scheduled_time.strftime('%b') }}</small>
+                            </span>
+                            <div class="compact-copy">
+                                <strong>{{ interview.title }}</strong>
+                                <span>{{ interview.scheduled_time.strftime('%I:%M %p') }} · {{ interview.interview_type }}</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty-state empty-state-compact">
+                            <i class="bi bi-calendar2" aria-hidden="true"></i>
+                            <p>No interviews scheduled yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>My applications</h2>
+                        <p>Track progress across your applications</p>
+                    </div>
+                    <a class="panel-link" href="{{ url_for('candidate.applications') }}">View all <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table dashboard-table align-middle mb-0">
+                        <thead>
+                            <tr><th>Position</th><th>Company</th><th>Applied</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for application in applications[:6] %}
+                                <tr>
+                                    <td class="table-primary-text">{{ application.job.title if application.job else 'Placement Drive' }}</td>
+                                    <td>{{ application.job.company.name if application.job else 'Campus placement' }}</td>
+                                    <td>{{ application.applied_at.strftime('%b %d, %Y') if application.applied_at else '—' }}</td>
+                                    <td><span class="badge {{ application.get_status_badge_class() }}">{{ application.status }}</span></td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4">
+                                    <div class="empty-state">
+                                        <i class="bi bi-send" aria-hidden="true"></i>
+                                        <p>You haven’t applied to a role yet.</p>
+                                        <a href="{{ url_for('candidate.jobs') }}" class="btn btn-sm btn-primary">Explore opportunities</a>
+                                    </div>
+                                </td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Career checklist</h2>
+                        <p>Keep your candidate profile ready</p>
+                    </div>
+                </div>
+                <div class="checklist-list">
+                    <a href="{{ url_for('candidate.profile') }}" class="checklist-item">
+                        <span class="checklist-status {% if profile.calculate_profile_completion() == 100 %}is-done{% endif %}">
+                            <i class="bi {% if profile.calculate_profile_completion() == 100 %}bi-check-lg{% else %}bi-person{% endif %}" aria-hidden="true"></i>
+                        </span>
+                        <span><strong>Complete your profile</strong><small>{{ profile.calculate_profile_completion() }}% complete</small></span>
+                        <i class="bi bi-chevron-right checklist-chevron" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ url_for('candidate.resume') }}" class="checklist-item">
+                        <span class="checklist-status {% if profile.resume %}is-done{% endif %}">
+                            <i class="bi {% if profile.resume %}bi-check-lg{% else %}bi-file-earmark-arrow-up{% endif %}" aria-hidden="true"></i>
+                        </span>
+                        <span><strong>{% if profile.resume %}Resume uploaded{% else %}Upload your resume{% endif %}</strong><small>{% if profile.resume %}Ready for AI screening{% else %}Add your experience and skills{% endif %}</small></span>
+                        <i class="bi bi-chevron-right checklist-chevron" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ url_for('candidate.jobs') }}" class="checklist-item">
+                        <span class="checklist-status"><i class="bi bi-search" aria-hidden="true"></i></span>
+                        <span><strong>Explore open jobs</strong><small>Find roles that fit your skills</small></span>
+                        <i class="bi bi-chevron-right checklist-chevron" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3">
+        <div class="col-xl-7">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div><h2>Placement opportunities</h2><p>Active campus drives matching your profile</p></div>
+                    <span class="panel-icon panel-icon-teal"><i class="bi bi-mortarboard" aria-hidden="true"></i></span>
+                </div>
+                <div class="compact-list">
+                    {% for drive in eligible_drives[:4] %}
+                        <div class="opportunity-row">
+                            <span class="opportunity-mark"><i class="bi bi-building" aria-hidden="true"></i></span>
+                            <div class="opportunity-copy">
+                                <strong>{{ drive.title }}</strong>
+                                <span>{{ drive.company.name }} · {{ drive.drive_date.strftime('%b %d, %Y') }}</span>
+                            </div>
+                            {% if drive.job %}
+                                <a href="{{ url_for('candidate.job_detail', job_id=drive.job.id) }}" class="btn btn-sm btn-outline-primary">View drive</a>
+                            {% else %}
+                                <span class="badge bg-success">Eligible</span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state empty-state-compact"><i class="bi bi-mortarboard" aria-hidden="true"></i><p>No matching active drives currently.</p></div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-5">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div><h2>Recent notifications</h2><p>Updates on your hiring journey</p></div>
+                    <a class="panel-link" href="{{ url_for('candidate.notifications') }}">View all <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="compact-list">
+                    {% for notification in notifications %}
+                        <a class="notification-row" href="{{ notification.link or url_for('candidate.notifications') }}">
+                            <span class="notification-mark {% if not notification.is_read %}is-unread{% endif %}"><i class="bi bi-bell" aria-hidden="true"></i></span>
+                            <span class="notification-copy">
+                                <strong>{{ notification.title }}</strong>
+                                <small>{{ notification.message }}</small>
+                                <time datetime="{{ notification.created_at.isoformat() }}">{{ notification.created_at.strftime('%b %d, %Y') }}</time>
+                            </span>
+                        </a>
+                    {% else %}
+                        <div class="empty-state empty-state-compact"><i class="bi bi-bell" aria-hidden="true"></i><p>You’re all caught up.</p></div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    {% if assessments %}
+    <section class="dashboard-panel mt-3">
+        <div class="panel-heading">
+            <div><h2>Skill assessments</h2><p>Assessments assigned to your applications</p></div>
+            <span class="panel-icon panel-icon-amber"><i class="bi bi-journal-check" aria-hidden="true"></i></span>
+        </div>
+        <div class="row g-3">
+            {% for assignment in assessments %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="assessment-card">
+                        <div><strong>{{ assignment.assessment.title }}</strong><span>{{ assignment.assessment.category }} · {{ assignment.assessment.duration_minutes }} min</span></div>
+                        {% if assignment.status == 'Completed' %}
+                            <span class="badge bg-success">Completed · {{ assignment.score }}%</span>
+                        {% else %}
+                            <a href="{{ url_for('assessment.take_assessment', assignment_id=assignment.id) }}" class="btn btn-sm btn-primary">Start assessment</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">System Notifications</h2>
+      <p class="text-muted mb-0">In-app activity logs and alerts across recruitment stages.</p>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+      <div class="list-group list-group-flush rounded-4">
+        {% if notifications %}
+          {% for n in notifications %}
+            <div class="list-group-item p-4 {{ 'bg-light' if not n.is_read else '' }}">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-bell-fill me-2"></i> {{ n.title }}</h6>
+                <small class="text-muted">{{ n.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+              </div>
+              <p class="mb-2 text-dark">{{ n.message }}</p>
+              {% if n.link %}
+                <a href="{{ n.link }}" class="btn btn-sm btn-outline-primary fw-bold">View Related Details</a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="p-5 text-center text-muted">
+            <i class="bi bi-bell-slash display-4 d-block mb-2"></i>
+            No notifications available.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

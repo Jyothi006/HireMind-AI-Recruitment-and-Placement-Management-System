@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Hall Tickets – HireMind{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="mb-4">
+    <h2 class="fw-bold mb-1">Digital Hall Tickets</h2>
+    <p class="text-muted mb-0">Select a placement drive to view and print eligible student hall tickets.</p>
+  </div>
+  <div class="row g-4">
+    {% if drives %}
+      {% for drive in drives %}
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-2">{{ drive.company.name }}</span>
+            <h4 class="fw-bold mb-2">{{ drive.title }}</h4>
+            <p class="text-muted mb-1"><i class="bi bi-calendar me-1"></i>{{ drive.drive_date.strftime('%b %d, %Y') }}</p>
+            <p class="text-muted mb-3"><i class="bi bi-geo-alt me-1"></i>{{ drive.venue }}</p>
+            <a href="{{ url_for('placement.hall_tickets', drive_id=drive.id) }}" class="btn btn-primary fw-bold w-100">
+              <i class="bi bi-ticket-perforated me-1"></i> View Hall Tickets
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="col-12 text-center py-5 text-muted">No placement drives available.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Job – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="mb-4">
+    <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i> Back to Jobs
+    </a>
+    <h2 class="fw-bold mb-1">Edit Job: {{ job.title }}</h2>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <form method="POST" action="{{ url_for('recruiter.edit_job', job_id=job.id) }}">
+        
+        <div class="row g-3 mb-3">
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Job Title</label>
+            <input type="text" class="form-control" name="title" value="{{ job.title }}" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Job Status</label>
+            <select class="form-select" name="status">
+              <option value="Open" {{ 'selected' if job.status == 'Open' }}>Open</option>
+              <option value="Closed" {{ 'selected' if job.status == 'Closed' }}>Closed</option>
+              <option value="Draft" {{ 'selected' if job.status == 'Draft' }}>Draft</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Required Technical Skills</label>
+          <input type="text" class="form-control" name="required_skills" value="{{ job.required_skills }}" required>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Salary Package</label>
+            <input type="text" class="form-control" name="salary_package" value="{{ job.salary_package }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Location</label>
+            <input type="text" class="form-control" name="location" value="{{ job.location }}">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Job Description</label>
+          <textarea class="form-control" name="description" rows="5" required>{{ job.description }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm">
+          Save Job Updates
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Digital Hall Tickets – {{ drive.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="d-flex align-items-center justify-content-between mb-4 no-print">
+    <div>
+      <a href="{{ url_for('placement.drive_detail', drive_id=drive.id) }}" class="btn btn-sm btn-outline-secondary mb-2">
+        <i class="bi bi-arrow-left me-1"></i> Back to Drive
+      </a>
+      <h2 class="fw-bold mb-1">Digital Campus Hall Tickets</h2>
+      <p class="text-muted mb-0">Official Placement Drive Admit Cards for {{ students|length }} eligible students.</p>
+    </div>
+    <button onclick="window.print()" class="btn btn-primary fw-bold shadow-sm">
+      <i class="bi bi-printer-fill me-1"></i> Print All Hall Tickets
+    </button>
+  </div>
+
+  <div class="row g-4">
+    {% for cand in students %}
+      <div class="col-md-6 col-lg-6">
+        <div class="card border-dark shadow-sm rounded-4 p-4 hall-ticket-card bg-white">
+          <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-cpu-fill text-primary fs-2"></i>
+              <div>
+                <h5 class="fw-bold mb-0 text-primary">HireMind Placement Cell</h5>
+                <small class="text-muted">Campus Recruitment Admit Card</small>
+              </div>
+            </div>
+            <span class="badge bg-dark px-3 py-2 fs-6">Reg: HM-2026-{{ cand.id }}</span>
+          </div>
+
+          <div class="row align-items-center mb-3">
+            <div class="col-8">
+              <h4 class="fw-bold text-dark mb-1">{{ cand.user.full_name }}</h4>
+              <p class="mb-1 text-muted small"><i class="bi bi-envelope me-1"></i> {{ cand.user.email }}</p>
+              <p class="mb-0 text-muted small"><i class="bi bi-mortarboard me-1"></i> Dept: <strong>{{ cand.department }}</strong> ({{ cand.graduation_year }})</p>
+            </div>
+            <div class="col-4 text-center">
+              <div class="bg-light border p-2 rounded text-muted font-monospace small">
+                <i class="bi bi-qr-code fs-1 d-block text-dark"></i>
+                <small>VERIFIED</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 border mb-3 small">
+            <div class="row g-2">
+              <div class="col-6"><strong>Company:</strong> {{ drive.company.name }}</div>
+              <div class="col-6"><strong>Drive Title:</strong> {{ drive.title }}</div>
+              <div class="col-6"><strong>Date:</strong> {{ drive.drive_date.strftime('%b %d, %Y') }}</div>
+              <div class="col-6"><strong>Venue:</strong> {{ drive.venue }}</div>
+              <div class="col-6"><strong>Student CGPA:</strong> {{ cand.cgpa }}</div>
+              <div class="col-6"><strong>Backlogs:</strong> {{ cand.backlogs }}</div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between small text-muted border-top pt-2">
+            <span>Authorised Signature: Placement Officer (TPO)</span>
+            <span class="fw-bold text-success"><i class="bi bi-shield-check me-1"></i> Status: Eligible Candidate</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

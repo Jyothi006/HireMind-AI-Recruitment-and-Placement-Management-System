@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}HireMind{% endblock %}</title>
+
+    <!-- Inter: clean, modern typography for the HireMind interface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- HireMind CSS -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}?v=20261022-office1"
+    >
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         TOP NAVBAR
+         ========================================================= -->
+    <nav class="navbar navbar-expand-lg top-navbar sticky-top px-3">
+
+        <div class="container-fluid">
+
+            <a
+                class="navbar-brand d-flex align-items-center"
+                href="{{ url_for('index') }}"
+            >
+                <img
+                    class="brand-logo"
+                    src="{{ url_for('static', filename='images/hiremind-brand.png') }}"
+                    alt="HireMind"
+                    width="170"
+                    height="60"
+                >
+            </a>
+
+            {% if current_user.is_authenticated %}
+            <button
+                class="btn sidebar-toggle d-md-none"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#roleSidebar"
+                aria-controls="roleSidebar"
+                aria-expanded="false"
+                aria-label="Toggle dashboard navigation"
+            >
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+
+            <div class="topbar-page-context d-none d-md-flex">
+                <span class="topbar-context-label">{{ current_user.get_role_display() }}</span>
+                <span class="topbar-context-title">
+                    {% if request.endpoint == 'candidate.dashboard' %}Candidate dashboard
+                    {% elif request.endpoint == 'recruiter.dashboard' %}Recruiter workspace
+                    {% elif request.endpoint == 'admin.dashboard' %}Platform overview
+                    {% elif request.endpoint == 'placement.dashboard' %}Placement overview
+                    {% elif request.endpoint == 'interview.dashboard' %}Interview workspace
+                    {% elif request.endpoint == 'hiring.dashboard' %}Hiring review
+                    {% else %}HireMind workspace{% endif %}
+                </span>
+            </div>
+            {% endif %}
+
+            {% if current_user.is_authenticated and current_user.role == 'candidate' and request.endpoint == 'candidate.dashboard' %}
+            <form class="dashboard-top-search d-none d-lg-flex" method="GET" action="{{ url_for('candidate.jobs') }}" role="search">
+                <label class="visually-hidden" for="workspace-job-search">Search job opportunities</label>
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="workspace-job-search" type="search" name="search" placeholder="Search opportunities" autocomplete="off">
+                <button type="submit" aria-label="Search opportunities"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+            </form>
+            {% endif %}
+
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+                    {% if not current_user.is_authenticated %}
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('index') }}"
+                            >
+                                Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('index') }}#login"
+                            >
+                                Login
+                            </a>
+                        </li>
+
+                        <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                            <a
+                                class="btn btn-primary px-3"
+                                href="{{ url_for('auth.register') }}"
+                            >
+                                Register
+                            </a>
+                        </li>
+
+                    {% else %}
+
+                        {% if current_user.role == 'candidate' %}
+                        <li class="nav-item me-lg-2">
+                            <a
+                                class="nav-link notification-link"
+                                href="{{ url_for('candidate.notifications') }}"
+                                aria-label="Notifications{% set unread_count = current_user.notifications.filter_by(is_read=False).count() %}{% if unread_count %}, {{ unread_count }} unread{% endif %}"
+                                title="Notifications"
+                            >
+                                <i class="bi bi-bell" aria-hidden="true"></i>
+                                <span class="d-lg-none ms-1">Notifications</span>
+                                {% if unread_count %}
+                                    <span class="notification-count">{{ unread_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item me-lg-2">
+                            <a
+                                class="nav-link"
+                                href="{{ url_for('index') }}"
+                            >
+                                <i class="bi bi-house me-1"></i>
+                                Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+
+                            <a
+                                class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+                                href="#"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <span class="user-avatar">
+                                    {{ current_user.full_name[:1]|upper }}
+                                </span>
+
+                                <span class="d-none d-lg-inline">
+                                    {{ current_user.full_name }}
+                                </span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+
+                                <li>
+                                    <h6 class="dropdown-header">
+                                        {{ current_user.full_name }}
+                                    </h6>
+                                </li>
+
+                                <li>
+                                    <span class="dropdown-item-text small text-muted">
+                                        {{ current_user.email }}
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <span class="dropdown-item-text">
+                                        <span class="badge bg-secondary">
+                                            {{ current_user.get_role_display() }}
+                                        </span>
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{{ url_for('auth.logout') }}"
+                                    >
+                                        <i class="bi bi-box-arrow-right me-2"></i>
+                                        Logout
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================================================
+         PAGE LAYOUT
+         ========================================================= -->
+
+    <div class="{% if current_user.is_authenticated %}container-fluid{% endif %}">
+
+        <div class="{% if current_user.is_authenticated %}row{% endif %}">
+
+            {% if current_user.is_authenticated %}
+
+                <!-- SIDEBAR -->
+                <aside id="roleSidebar" class="col-lg-2 col-md-3 sidebar p-0 collapse d-md-block">
+
+                    <div class="sidebar-inner py-3">
+
+                        <div class="sidebar-heading px-3 mb-2">
+                            MAIN MENU
+                        </div>
+
+
+                        <a
+                            class="nav-link {% if request.endpoint in ['candidate.dashboard', 'recruiter.dashboard', 'placement.dashboard', 'interview.dashboard', 'hiring.dashboard', 'admin.dashboard'] %}active{% endif %}"
+                            href="{% if current_user.role == 'candidate' %}{{ url_for('candidate.dashboard') }}{% elif current_user.role in ['recruiter', 'company_rep'] %}{{ url_for('recruiter.dashboard') }}{% elif current_user.role == 'tpo' %}{{ url_for('placement.dashboard') }}{% elif current_user.role == 'interviewer' %}{{ url_for('interview.dashboard') }}{% elif current_user.role == 'hiring_manager' %}{{ url_for('hiring.dashboard') }}{% else %}{{ url_for('admin.dashboard') }}{% endif %}"
+                        >
+                            <i class="bi bi-speedometer2"></i>
+                            Dashboard
+                        </a>
+
+
+                        {% if current_user.role == 'candidate' %}
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'candidate.profile' %}active{% endif %}"
+                                href="{{ url_for('candidate.profile') }}"
+                            >
+                                <i class="bi bi-person"></i>
+                                Profile
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'candidate.resume' %}active{% endif %}"
+                                href="{{ url_for('candidate.resume') }}"
+                            >
+                                <i class="bi bi-file-earmark-person"></i>
+                                Resume
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['candidate.jobs', 'candidate.job_detail'] %}active{% endif %}"
+                                href="{{ url_for('candidate.jobs') }}"
+                            >
+                                <i class="bi bi-briefcase"></i>
+                                Jobs
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'candidate.applications' %}active{% endif %}"
+                                href="{{ url_for('candidate.applications') }}"
+                            >
+                                <i class="bi bi-send"></i>
+                                Applications
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'candidate.offers' %}active{% endif %}"
+                                href="{{ url_for('candidate.offers') }}"
+                            >
+                                <i class="bi bi-award"></i>
+                                Offers
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'candidate.notifications' %}active{% endif %}"
+                                href="{{ url_for('candidate.notifications') }}"
+                            >
+                                <i class="bi bi-bell"></i>
+                                Notifications
+                            </a>
+
+
+                        {% elif current_user.role in ['recruiter', 'company_rep'] %}
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['recruiter.jobs', 'recruiter.create_job', 'recruiter.edit_job'] %}active{% endif %}"
+                                href="{{ url_for('recruiter.jobs') }}"
+                            >
+                                <i class="bi bi-briefcase"></i>
+                                Manage Jobs
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'recruiter.company_profile' %}active{% endif %}"
+                                href="{{ url_for('recruiter.company_profile') }}"
+                            >
+                                <i class="bi bi-building"></i>
+                                Company Profile
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['recruiter.ai_ranking_overview', 'recruiter.ai_rank_candidates'] %}active{% endif %}"
+                                href="{{ url_for('recruiter.ai_ranking_overview') }}"
+                            >
+                                <i class="bi bi-cpu"></i>
+                                AI Candidate Ranking
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['interview.dashboard', 'recruiter.schedule_interview'] %}active{% endif %}"
+                                href="{{ url_for('interview.dashboard') }}"
+                            >
+                                <i class="bi bi-calendar-event"></i>
+                                Interviews
+                            </a>
+
+
+                        {% elif current_user.role == 'tpo' %}
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['placement.drives', 'placement.drive_detail', 'placement.create_drive'] %}active{% endif %}"
+                                href="{{ url_for('placement.drives') }}"
+                            >
+                                <i class="bi bi-megaphone"></i>
+                                Placement Drives
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'placement.students' %}active{% endif %}"
+                                href="{{ url_for('placement.students') }}"
+                            >
+                                <i class="bi bi-people"></i>
+                                Students
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'placement.companies' %}active{% endif %}"
+                                href="{{ url_for('placement.companies') }}"
+                            >
+                                <i class="bi bi-building"></i>
+                                Companies
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['placement.hall_tickets_index', 'placement.hall_tickets'] %}active{% endif %}"
+                                href="{{ url_for('placement.hall_tickets_index') }}"
+                            >
+                                <i class="bi bi-ticket-perforated"></i>
+                                Hall Tickets
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'placement.reports' %}active{% endif %}"
+                                href="{{ url_for('placement.reports') }}"
+                            >
+                                <i class="bi bi-bar-chart"></i>
+                                Reports
+                            </a>
+
+
+                        {% elif current_user.role == 'interviewer' %}
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'interview.dashboard' %}active{% endif %}"
+                                href="{{ url_for('interview.dashboard') }}"
+                            >
+                                <i class="bi bi-camera-video"></i>
+                                Interviews
+                            </a>
+
+
+                        {% elif current_user.role == 'hiring_manager' %}
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'hiring.dashboard' %}active{% endif %}"
+                                href="{{ url_for('hiring.dashboard') }}"
+                            >
+                                <i class="bi bi-person-check"></i>
+                                Candidates
+                            </a>
+
+
+                        {% elif current_user.role == 'admin' %}
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}"
+                                href="{{ url_for('admin.users') }}"
+                            >
+                                <i class="bi bi-people"></i>
+                                Users
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'admin.create_user' %}active{% endif %}"
+                                href="{{ url_for('admin.create_user') }}"
+                            >
+                                <i class="bi bi-person-plus"></i>
+                                Create User
+                            </a>
+
+                            <a
+                                class="nav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}"
+                                href="{{ url_for('admin.logs') }}"
+                            >
+                                <i class="bi bi-journal-text"></i>
+                                Audit Logs
+                            </a>
+
+                        {% endif %}
+
+
+                        {% if current_user.role in ['candidate', 'recruiter', 'tpo', 'interviewer', 'hiring_manager'] %}
+
+                            <div class="sidebar-divider"></div>
+
+                            <div class="sidebar-heading px-3 mb-2">
+                                ASSESSMENTS
+                            </div>
+
+                            <a
+                                class="nav-link {% if request.endpoint in ['assessment.list_assessments', 'assessment.create_assessment', 'assessment.manage_questions'] %}active{% endif %}"
+                                href="{{ url_for('assessment.list_assessments') }}"
+                            >
+                                <i class="bi bi-journal-check"></i>
+                                Assessments
+                            </a>
+
+                        {% endif %}
+
+
+                        <div class="sidebar-divider"></div>
+
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('auth.logout') }}"
+                        >
+                            <i class="bi bi-box-arrow-right"></i>
+                            Logout
+                        </a>
+
+                    </div>
+
+                </aside>
+
+            {% endif %}
+
+
+            <!-- MAIN CONTENT -->
+
+            <main class="{% if current_user.is_authenticated %}col-lg-10 col-md-9 main-content{% else %}public-main{% endif %}">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+
+                        <div class="{% if current_user.is_authenticated %}flash-messages mb-3{% else %}container-fluid px-3 px-lg-4 pt-3{% endif %}">
+
+                            {% for category, message in messages %}
+
+                                <div
+                                    class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show rounded-3 shadow-sm"
+                                    role="alert"
+                                >
+                                    {{ message }}
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="alert"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+                {% endwith %}
+
+
+                {% block content %}{% endblock %}
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container-fluid text-center">
+            <span>© 2026 HireMind · AI Recruitment & Placement Management</span>
+        </div>
+    </footer>
+
+
+    <!-- Bootstrap JS -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

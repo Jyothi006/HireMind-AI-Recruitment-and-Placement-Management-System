@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Recruiter Workspace – HireMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-page">
+    <header class="workspace-heading">
+        <div>
+            <div class="workspace-eyebrow">RECRUITING / WORKSPACE</div>
+            <h1>Welcome back, {{ current_user.full_name.split()[0] }}</h1>
+            <p>{{ company.name if company else 'Your hiring workspace' }} · Review your pipeline and keep great candidates moving.</p>
+        </div>
+        <div class="workspace-actions">
+            <a href="{{ url_for('recruiter.jobs') }}" class="btn btn-outline-primary">
+                <i class="bi bi-briefcase me-1" aria-hidden="true"></i> Manage jobs
+            </a>
+            <a href="{{ url_for('recruiter.create_job') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Post a job
+            </a>
+        </div>
+    </header>
+
+    <section class="row g-3 dashboard-metrics" aria-label="Recruitment metrics">
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-blue"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                <span class="metric-label">Job postings</span>
+                <strong class="metric-value">{{ metrics.total_jobs }}</strong>
+                <span class="metric-note">{{ jobs|selectattr('status', 'equalto', 'Open')|list|length }} open roles</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-teal"><i class="bi bi-people" aria-hidden="true"></i></span>
+                <span class="metric-label">Total applicants</span>
+                <strong class="metric-value">{{ metrics.total_applicants }}</strong>
+                <span class="metric-note">Across your job postings</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-amber"><i class="bi bi-inbox" aria-hidden="true"></i></span>
+                <span class="metric-label">Awaiting review</span>
+                <strong class="metric-value">{{ awaiting_review }}</strong>
+                <span class="metric-note">Applied or under review</span>
+            </article>
+        </div>
+        <div class="col-6 col-xl-3">
+            <article class="metric-card">
+                <span class="metric-icon metric-violet"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
+                <span class="metric-label">Scheduled interviews</span>
+                <strong class="metric-value">{{ scheduled_interviews }}</strong>
+                <span class="metric-note">On your recruitment calendar</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+        <div class="col-xl-8">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div><h2>Application pipeline</h2><p>Candidate applications by current stage</p></div>
+                    <span class="panel-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></span>
+                </div>
+                <div class="chart-frame chart-frame-compact">
+                    <canvas id="recruiterPipelineChart" role="img" aria-label="Recruiter application stages chart"></canvas>
+                    <p class="chart-empty" id="recruiterPipelineEmpty" hidden>No applications in your pipeline yet.</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="dashboard-panel h-100">
+                <div class="panel-heading">
+                    <div><h2>Quick actions</h2><p>Keep your hiring work moving</p></div>
+                </div>
+                <div class="quick-action-list">
+                    <a href="{{ url_for('recruiter.create_job') }}" class="quick-action">
+                        <span class="quick-action-icon"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
+                        <span><strong>Create a job posting</strong><small>Publish a role for candidates</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ url_for('recruiter.jobs') }}" class="quick-action">
+                        <span class="quick-action-icon quick-action-teal"><i class="bi bi-people" aria-hidden="true"></i></span>
+                        <span><strong>Review applicants</strong><small>{{ metrics.total_applicants }} applications to date</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ url_for('interview.dashboard') }}" class="quick-action">
+                        <span class="quick-action-icon quick-action-amber"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                        <span><strong>Manage interviews</strong><small>{{ scheduled_interviews }} scheduled</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                    <a href="{{ url_for('recruiter.ai_ranking_overview') }}" class="quick-action">
+                        <span class="quick-action-icon quick-action-violet"><i class="bi bi-cpu" aria-hidden="true"></i></span>
+                        <span><strong>AI candidate ranking</strong><small>Compare candidates with job requirements</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="row g-3">
+        <div class="col-12">
+            <article class="dashboard-panel">
+                <div class="panel-heading">
+                    <div><h2>Recent applications</h2><p>Latest candidates in your hiring pipeline</p></div>
+                    <a class="panel-link" href="{{ url_for('recruiter.jobs') }}">All job postings <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table dashboard-table align-middle mb-0">
+                        <thead>
+                            <tr><th>Candidate</th><th>Applied position</th><th>Application date</th><th>Match</th><th>Status</th><th class="text-end">Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for application in recent_apps %}
+                                <tr>
+                                    <td>
+                                        <div class="table-user">
+                                            <span class="user-initial">{{ application.candidate.user.full_name[:1]|upper }}</span>
+                                            <span class="table-primary-text">{{ application.candidate.user.full_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ application.job.title }}</td>
+                                    <td>{{ application.applied_at.strftime('%b %d, %Y') if application.applied_at else '—' }}</td>
+                                    <td><span class="match-value">{{ application.ai_score or 0 }}%</span></td>
+                                    <td><span class="badge {{ application.get_status_badge_class() }}">{{ application.status }}</span></td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('recruiter.job_applicants', job_id=application.job.id) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="bi bi-person-lines-fill" aria-hidden="true"></i>
+                                        <p>No applications received yet. Your published roles will appear here as candidates apply.</p>
+                                        <a href="{{ url_for('recruiter.create_job') }}" class="btn btn-sm btn-primary">Post your first job</a>
+                                    </div>
+                                </td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="dashboard-panel mt-3">
+        <div class="panel-heading">
+            <div><h2>Your job postings</h2><p>Manage openings and candidate pipelines</p></div>
+            <a class="panel-link" href="{{ url_for('recruiter.jobs') }}">Manage all jobs <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+        <div class="row g-3">
+            {% for job in jobs[:4] %}
+                <div class="col-md-6 col-xl-3">
+                    <div class="job-summary-card">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <span class="opportunity-mark"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                            <span class="badge {% if job.status == 'Open' %}bg-success{% elif job.status == 'Draft' %}bg-warning{% else %}bg-secondary{% endif %}">{{ job.status }}</span>
+                        </div>
+                        <h3>{{ job.title }}</h3>
+                        <p>{{ job.location or 'Location not specified' }} · {{ job.job_type or 'Full-Time' }}</p>
+                        <div class="job-summary-footer">
+                            <span><i class="bi bi-people me-1" aria-hidden="true"></i>{{ job.applications|length }} applicants</span>
+                            <a href="{{ url_for('recruiter.job_applicants', job_id=job.id) }}">Review <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="empty-state">
+                        <i class="bi bi-briefcase" aria-hidden="true"></i>
+                        <p>You haven’t posted a role yet.</p>
+                        <a href="{{ url_for('recruiter.create_job') }}" class="btn btn-sm btn-primary">Create a job posting</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('recruiterPipelineChart');
+    const empty = document.getElementById('recruiterPipelineEmpty');
+    const statusData = {{ application_statuses | tojson }};
+    const labels = Object.keys(statusData);
+    const values = Object.values(statusData);
+    if (!values.some(function (value) { return value > 0; }) || typeof Chart === 'undefined') {
+        canvas.hidden = true;
+        empty.hidden = false;
+        return;
+    }
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Applications',
+                data: values,
+                backgroundColor: '#2563eb',
+                hoverBackgroundColor: '#0f766e',
+                borderRadius: 5,
+                maxBarThickness: 34
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#64748b' } },
+                y: { beginAtZero: true, ticks: { precision: 0, color: '#64748b' }, grid: { color: '#eef2f7' } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

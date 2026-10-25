@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Workspace – HireMind AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid dashboard-page">
+  <header class="workspace-heading">
+    <div>
+      <div class="workspace-eyebrow">INTERVIEWS / EVALUATION</div>
+      <h1>Welcome back, {{ current_user.full_name.split()[0] }}</h1>
+      <p>Review your interview schedule and submit structured candidate feedback.</p>
+    </div>
+  </header>
+  <section class="row g-3 dashboard-metrics" aria-label="Interview metrics">
+    <div class="col-6 col-xl-3"><article class="metric-card"><span class="metric-icon metric-blue"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span><span class="metric-label">Assigned interviews</span><strong class="metric-value">{{ interviews|length }}</strong><span class="metric-note">Across your schedule</span></article></div>
+    <div class="col-6 col-xl-3"><article class="metric-card"><span class="metric-icon metric-teal"><i class="bi bi-check2-circle" aria-hidden="true"></i></span><span class="metric-label">Completed</span><strong class="metric-value">{{ interviews|selectattr('status', 'equalto', 'Completed')|list|length }}</strong><span class="metric-note">Feedback submitted</span></article></div>
+    <div class="col-6 col-xl-3"><article class="metric-card"><span class="metric-icon metric-amber"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span><span class="metric-label">Needs evaluation</span><strong class="metric-value">{{ interviews|rejectattr('status', 'equalto', 'Completed')|list|length }}</strong><span class="metric-note">Awaiting your review</span></article></div>
+    <div class="col-6 col-xl-3"><article class="metric-card"><span class="metric-icon metric-violet"><i class="bi bi-person-video3" aria-hidden="true"></i></span><span class="metric-label">Interview formats</span><strong class="metric-value">{{ interviews|map(attribute='interview_type')|unique|list|length }}</strong><span class="metric-note">Represented in schedule</span></article></div>
+  </section>
+
+  <article class="dashboard-panel">
+    <div class="panel-heading">
+      <div><h2>Interview schedule</h2><p>Candidate meetings and evaluation actions</p></div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Candidate Name</th>
+              <th>Interview Title</th>
+              <th>Type</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th class="pe-4 text-end">Evaluation Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if interviews %}
+              {% for it in interviews %}
+                <tr>
+                  <td class="ps-4">
+                    <strong class="text-dark d-block">{{ it.candidate.user.full_name }}</strong>
+                    <small class="text-muted">{{ it.candidate.department }} (CGPA: {{ it.candidate.cgpa }})</small>
+                  </td>
+                  <td>{{ it.title }}</td>
+                  <td><span class="badge bg-purple text-white">{{ it.interview_type }}</span></td>
+                  <td><small class="text-muted"><i class="bi bi-clock me-1"></i> {{ it.scheduled_time.strftime('%b %d, %Y %I:%M %p') }}</small></td>
+                  <td>
+                    <span class="badge {{ 'bg-success' if it.status == 'Completed' else 'bg-warning text-dark' }}">{{ it.status }}</span>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <a href="{{ url_for('interview.evaluate', interview_id=it.id) }}" class="btn btn-sm btn-primary fw-bold">
+                      <i class="bi bi-journal-check me-1"></i> Evaluate & Feedback
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" class="text-center py-5 text-muted">No interviews assigned yet.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+          </table>
+        </div>
+    </div>
+  </article>
+</div>
+{% endblock %}

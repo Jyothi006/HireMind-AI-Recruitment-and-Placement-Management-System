@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluate Candidate – {{ candidate.user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="mb-4">
+    <a href="{{ url_for('interview.dashboard') }}" class="btn btn-sm btn-outline-secondary mb-2">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <h2 class="fw-bold mb-1">Interview Evaluation: {{ candidate.user.full_name }}</h2>
+    <p class="text-muted mb-0">Interview Title: <strong>{{ interview.title }}</strong> ({{ interview.interview_type }})</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Candidate Info & AI Summary -->
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-dark text-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-person-badge me-2"></i> Candidate Dossier</h5>
+        </div>
+        <div class="card-body p-4">
+          <h4 class="fw-bold text-dark mb-1">{{ candidate.user.full_name }}</h4>
+          <p class="text-muted small mb-3"><i class="bi bi-envelope me-1"></i> {{ candidate.user.email }}</p>
+
+          <div class="p-3 bg-light rounded-3 mb-3 border">
+            <div class="row g-2 small">
+              <div class="col-6"><strong>Department:</strong> {{ candidate.department }}</div>
+              <div class="col-6"><strong>CGPA:</strong> {{ candidate.cgpa }}</div>
+              <div class="col-6"><strong>Experience:</strong> {{ candidate.experience_years }} yrs</div>
+              <div class="col-6"><strong>Grad Year:</strong> {{ candidate.graduation_year }}</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <span class="text-muted small font-monospace d-block mb-1">TECHNICAL SKILLS:</span>
+            <div class="d-flex flex-wrap gap-1">
+              {% for s in candidate.get_skills_list() %}
+                <span class="badge bg-primary bg-opacity-10 text-primary">{{ s }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if resume %}
+            <div class="p-3 bg-dark text-white rounded-3 small">
+              <strong class="d-block mb-1"><i class="bi bi-file-earmark-text text-info me-1"></i> Parsed Resume Summary:</strong>
+              <div class="font-monospace small opacity-75" style="max-height: 120px; overflow-y: auto;">
+                {{ resume.extracted_text }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Submission Form -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-primary text-white py-3">
+          <h5 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2"></i> Submit Evaluation & Feedback</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST" action="{{ url_for('interview.evaluate', interview_id=interview.id) }}">
+            
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Technical Score (0-100)</label>
+                <input type="number" min="0" max="100" class="form-control" name="technical_score" value="{{ interview.feedback.technical_score if interview.feedback else 80 }}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Communication Score (0-100)</label>
+                <input type="number" min="0" max="100" class="form-control" name="communication_score" value="{{ interview.feedback.communication_score if interview.feedback else 75 }}" required>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Overall Rating (1 - 5 Stars)</label>
+                <select class="form-select" name="rating">
+                  <option value="5">5 Stars - Exceptional</option>
+                  <option value="4" selected>4 Stars - Strong Match</option>
+                  <option value="3">3 Stars - Average / Competent</option>
+                  <option value="2">2 Stars - Below Threshold</option>
+                  <option value="1">1 Star - Reject</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Final Recommendation</label>
+                <select class="form-select fw-bold" name="recommendation" required>
+                  <option value="Select" class="text-success" selected>Select / Hire Candidate</option>
+                  <option value="Reject" class="text-danger">Reject Candidate</option>
+                  <option value="Further Review" class="text-warning">Further Review Needed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Evaluation Notes & Detailed Feedback</label>
+              <textarea class="form-control" name="summary" rows="5" placeholder="Candidate demonstrated strong knowledge of Python, SQL queries, and Object-Oriented design patterns. Good problem solving skills..." required>{{ interview.feedback.summary if interview.feedback else '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4 py-2.5 fw-bold shadow-sm">
+              <i class="bi bi-save me-1"></i> Submit Official Evaluation
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

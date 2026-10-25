@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Take Test: {{ assessment.title }} – HireMind{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  
+  <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center">
+      <div>
+        <span class="badge bg-warning text-dark mb-1">{{ assessment.category }} Quiz</span>
+        <h3 class="fw-bold mb-0">{{ assessment.title }}</h3>
+      </div>
+      <div class="text-end">
+        <span class="badge bg-danger fs-5 px-3 py-2" id="timerBadge">
+          <i class="bi bi-stopwatch me-1"></i> Time Limit: {{ assessment.duration_minutes }} Mins
+        </span>
+      </div>
+    </div>
+
+    <div class="card-body p-4">
+      <form method="POST" action="{{ url_for('assessment.take_assessment', assignment_id=assignment.id) }}" id="quizForm">
+        
+        {% for q in assessment.questions %}
+          <div class="card border mb-4 rounded-3 p-3">
+            <h5 class="fw-bold text-dark mb-3">Q{{ loop.index }}. {{ q.text }}</h5>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="question_{{ q.id }}" id="q_{{ q.id }}_a" value="A" required>
+              <label class="form-check-label" for="q_{{ q.id }}_a">
+                <strong>A.</strong> {{ q.option_a }}
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="question_{{ q.id }}" id="q_{{ q.id }}_b" value="B">
+              <label class="form-check-label" for="q_{{ q.id }}_b">
+                <strong>B.</strong> {{ q.option_b }}
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="question_{{ q.id }}" id="q_{{ q.id }}_c" value="C">
+              <label class="form-check-label" for="q_{{ q.id }}_c">
+                <strong>C.</strong> {{ q.option_c }}
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="question_{{ q.id }}" id="q_{{ q.id }}_d" value="D">
+              <label class="form-check-label" for="q_{{ q.id }}_d">
+                <strong>D.</strong> {{ q.option_d }}
+              </label>
+            </div>
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-success btn-lg px-5 fw-bold shadow">
+          <i class="bi bi-check-circle-fill me-2"></i> Submit Assessment Answers
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
